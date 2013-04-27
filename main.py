@@ -28,7 +28,6 @@ class LD26Main:
         self.enemy_group = pygame.sprite.RenderPlain()
         self.enemy_bullet_group = pygame.sprite.RenderPlain()
         self.health_bar_sprites = pygame.sprite.RenderPlain()
-        self.badguy_count = 0
         self.max_badguys = 2
 
         self.ground = Ground((self.width, self.height))
@@ -44,14 +43,13 @@ class LD26Main:
                 if event.type == pygame.QUIT:
                     sys.exit()
 
-            while self.badguy_count < self.max_badguys:
+            while len(self.enemy_group) < self.max_badguys:
                 xpos = random.randint(0, self.width-64)
                 ypos = random.randint(0, self.height-64)
                 h = HealthBar(10, 10)
                 b = BadGuy((self.width, self.height), 10, h, (xpos, ypos))
                 self.health_bar_sprites.add(h)
                 self.enemy_group.add(b)
-                self.badguy_count += 1
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_d]:
@@ -73,26 +71,25 @@ class LD26Main:
                     self.player_bullet_group.add(bullet)
                 self.player.shoot(pygame.K_LEFT)
 
-
             for guy in self.enemy_group:
                 if guy.is_shooting():
                     bullet = Bullet(guy.shoot_dir, (self.width, self.height), guy.rect)
                     self.enemy_bullet_group.add(bullet)
 
+            # remove bullets that hit terrain
+            pygame.sprite.groupcollide(self.enemy_bullet_group, self.ground, True, False)
+            pygame.sprite.groupcollide(self.player_bullet_group, self.ground, True, False)
 
             damaged_guys = pygame.sprite.groupcollide(self.enemy_group, self.player_bullet_group, False, True)
             for d in damaged_guys:
                 d.damage(1)
                 if d.hp == 0:
                     d.kill()
-                    self.badguy_count -= 1
 
-            grounded_guys = [guy for guy in pygame.sprite.groupcollide(self.enemy_group, self.ground, False, False) if isinstance(guy, Dude)]
-            grounded_guys += [guy for guy in pygame.sprite.groupcollide(self.player_group, self.ground, False, False) if isinstance(guy, Dude)]
+            guys = self.enemy_group.sprites() + self.player_group.sprites()
 
-            for guy in grounded_guys:
-                guy.set_ground_height(self.height - 64)
-                guy.set_grounded(True)
+            for guy in guys:
+                guy.collide_with(self.ground.collisions_for(guy))
 
             self.player_bullet_group.update()
             self.player_bullet_group.draw(self.screen)

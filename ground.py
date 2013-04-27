@@ -17,3 +17,12 @@ class Ground(pygame.sprite.RenderPlain):
             tile = GroundTile((i * 64, screen_dims[1] - 64))
             self.add(tile)
 
+        tile = GroundTile((3*64, screen_dims[1] - 128))
+        self.add(tile)
+        tile = GroundTile((5*64, screen_dims[1] - 256))
+        self.add(tile)
+
+    def collisions_for(self, sprite):
+        return map(lambda x: x.rect, pygame.sprite.spritecollide(sprite, self, False))
+
+

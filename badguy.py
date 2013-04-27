@@ -20,6 +20,7 @@ class BadGuy(Dude):
         self.hp = hp
         self.ai = EnemyAI(self.rect)
         self.shot_interval = 50 + random.randint(0, 20)
+        self.jump_power = -5 - random.randint(0, 5)
 
     def damage(self, amt):
         if self.hp > 0:

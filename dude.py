@@ -38,6 +38,8 @@ class Dude(pygame.sprite.Sprite):
     def jump(self):
         if self.grounded:
             self.velocity[1] = self.jump_power
+            # BLARHG COLLISION CRAP
+            self.rect.bottom -= 1
             self.grounded = False
 
     def shoot(self, key):
@@ -48,11 +50,14 @@ class Dude(pygame.sprite.Sprite):
             elif key == K_LEFT:
                 self.shoot_dir = "left"
 
-    def set_grounded(self, grounded):
-        self.grounded = grounded
+    def collide_with(self, collisions):
+        if not collisions:
+            self.grounded = False
 
-    def set_ground_height(self, height):
-        self.ground_height = height
+        for rect in collisions:
+            if self.rect.bottom >= rect.top:
+                self.grounded = True
+                self.ground_height = rect.top + 1
 
     def update(self):
         if self.velocity[0] > 0:
@@ -66,7 +71,7 @@ class Dude(pygame.sprite.Sprite):
         else:
             self.velocity[1] = max(0, self.velocity[1])
             self.rect.move_ip(self.velocity[0], self.velocity[1])
-            self.rect.bottom = self.ground_height
+            self.rect.bottom = min(self.ground_height, self.rect.bottom)
 
         if self.shoot_dir == "left":
             self.image = self.left_shoot_image
@@ -79,5 +84,8 @@ class Dude(pygame.sprite.Sprite):
 
         if self.shoot_count >= self.shot_interval:
             self.shoot_dir = None
+
+        if self.rect.top > self.screen_dims[1]:
+            self.kill()
 
 
