@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-from utils import load_image
+from utils import load_image, mtd_vector
 
 class Dude(pygame.sprite.Sprite):
     def __init__(self, screen_dims):
@@ -53,11 +53,29 @@ class Dude(pygame.sprite.Sprite):
     def collide_with(self, collisions):
         if not collisions:
             self.grounded = False
+            return
 
         for rect in collisions:
-            if self.rect.bottom >= rect.top:
+            mtd = mtd_vector(self.rect, rect)
+            #self.rect.x += mtd[0]
+            #self.rect.y += mtd[1]
+
+            if mtd[1] < 0: # collision from above
+                self.velocity[1] = min(0, self.velocity[1])
+                self.rect.bottom = rect.top + 1
                 self.grounded = True
-                self.ground_height = rect.top + 1
+            elif mtd[1] > 0: # from below
+                self.velocity[1] = max(0, self.velocity[1])
+                self.rect.top = rect.bottom
+            elif mtd[0] < 0: # from the left
+                if self.rect.bottom - rect.top > 1:
+                    self.velocity[0] = min(0, self.velocity[0])
+                    self.rect.right = rect.left + 1
+            elif mtd[0] > 0: # from the right
+                if self.rect.bottom - rect.top > 1:
+                    self.velocity[0] = max(0, self.velocity[0])
+                    self.rect.left = rect.right - 1
+
 
     def update(self):
         if self.velocity[0] > 0:

@@ -14,7 +14,7 @@ if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
 class LD26Main:
-    def __init__(self, width=640,height=480):
+    def __init__(self, width=800,height=600):
         pygame.init()
         self.width = width
         self.height = height

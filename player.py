@@ -10,4 +10,5 @@ class Player(Dude):
         self.left_shoot_image, _ = load_image("res/player_shoot_left.png", -1)
         self.right_shoot_image, _ = load_image("res/player_shoot_right.png", -1)
         self.image = self.default_image
+        self.jump_power = -10
 
