@@ -11,6 +11,7 @@ from level import Level
 from dude import Dude
 from cameraspritegroup import CameraSpriteGroup
 from backdrop import Backdrop
+from menu import Menu
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -21,6 +22,7 @@ class LD26Main:
         self.width = width
         self.height = height
         self.screen = pygame.display.set_mode((self.width, self.height))
+        self.state = "menu"
 
     def load_sprites(self):
         self.player = Player((self.width, self.height))
@@ -35,8 +37,8 @@ class LD26Main:
         self.level = Level((self.width, self.height))
         self.bdrop1 = Backdrop(self.level.dims, 1)
         self.bdrop2 = Backdrop(self.level.dims, 2)
-        self.bdrop3 = Backdrop(self.level.dims, 1)
-        self.bdrop4 = Backdrop(self.level.dims, 2)
+
+        self.menu = Menu()
 
     def go(self):
         self.load_sprites()
@@ -48,80 +50,97 @@ class LD26Main:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        if self.state == "game":
+                            self.state = "menu"
+                        else:
+                            sys.exit()
 
-            while len(self.enemy_group) < self.max_badguys:
-                xpos = random.randint(0, self.width-64)
-                ypos = random.randint(0, self.height-64)
-                h = HealthBar(10, 10)
-                b = BadGuy((self.width, self.height), 10, h, (xpos, ypos))
-                self.health_bar_sprites.add(h)
-                self.enemy_group.add(b)
+                    elif event.key == K_RETURN and self.state == "menu":
+                        self.state = "game"
 
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_d]:
-                self.player.move(pygame.K_d)
-            elif keys[pygame.K_a]:
-                self.player.move(pygame.K_a)
+            if self.state == "menu":
+                self.do_menu()
+            else:
+                self.do_main_game()
 
-            if keys[pygame.K_SPACE] or keys[pygame.K_UP]:
-                self.player.move(pygame.K_SPACE)
-
-            if keys[pygame.K_RIGHT]:
-                if self.player.can_shoot():
-                    bullet = Bullet("right", self.level.size, self.player.rect)
-                    self.player_bullet_group.add(bullet)
-                self.player.shoot(pygame.K_RIGHT)
-            elif keys[pygame.K_LEFT]:
-                if self.player.can_shoot():
-                    bullet = Bullet("left", self.level.size, self.player.rect)
-                    self.player_bullet_group.add(bullet)
-                self.player.shoot(pygame.K_LEFT)
-
-            for guy in self.enemy_group:
-                if guy.is_shooting():
-                    bullet = Bullet(guy.shoot_dir, self.level.size, guy.rect)
-                    self.enemy_bullet_group.add(bullet)
-
-            # remove bullets that hit terrain
-            pygame.sprite.groupcollide(self.enemy_bullet_group, self.level, True, False)
-            pygame.sprite.groupcollide(self.player_bullet_group, self.level, True, False)
-
-            damaged_guys = pygame.sprite.groupcollide(self.enemy_group, self.player_bullet_group, False, True)
-            for d in damaged_guys:
-                d.damage(1)
-                if d.hp == 0:
-                    d.kill()
-
-            guys = self.enemy_group.sprites() + self.player_group.sprites()
-
-            for guy in guys:
-                if guy.rect.top > self.level.bottom():
-                    guy.kill()
-                else:
-                    guy.collide_with(self.level.collisions_for(guy))
-
-            offset = (self.width / 2) - self.player.rect.x, (self.height / 1.5) - self.player.rect.y
-            self.bdrop4.update()
-            self.bdrop4.draw(self.screen, (offset[0]/16, offset[1]/16))
-            self.bdrop3.update()
-            self.bdrop3.draw(self.screen, (offset[0]/8, offset[1]/8))
-            self.bdrop2.update()
-            self.bdrop2.draw(self.screen, (offset[0]/4, offset[1]/4))
-            self.bdrop1.update()
-            self.bdrop1.draw(self.screen, (offset[0]/2, offset[1]/2))
-            self.player_bullet_group.update()
-            self.player_bullet_group.draw(self.screen, offset)
-            self.enemy_bullet_group.update()
-            self.enemy_bullet_group.draw(self.screen, offset)
-            self.enemy_group.update(self.player.rect)
-            self.enemy_group.draw(self.screen, offset)
-            self.player_group.update()
-            self.player_group.draw(self.screen, offset)
-            self.health_bar_sprites.update()
-            self.health_bar_sprites.draw(self.screen, offset)
-            self.level.update()
-            self.level.draw(self.screen, offset)
             pygame.display.flip()
+
+    def do_menu(self):
+        self.menu.update()
+        self.menu.draw(self.screen)
+
+    def do_main_game(self):
+        while len(self.enemy_group) < self.max_badguys:
+            xpos = random.randint(0, self.width-64)
+            ypos = random.randint(0, self.height-64)
+            h = HealthBar(10, 10)
+            b = BadGuy((self.width, self.height), 10, h, (xpos, ypos))
+            self.health_bar_sprites.add(h)
+            self.enemy_group.add(b)
+
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_d]:
+            self.player.move(pygame.K_d)
+        elif keys[pygame.K_a]:
+            self.player.move(pygame.K_a)
+
+        if keys[pygame.K_SPACE] or keys[pygame.K_UP]:
+            self.player.move(pygame.K_SPACE)
+
+        if keys[pygame.K_RIGHT]:
+            if self.player.can_shoot():
+                bullet = Bullet("right", self.level.size, self.player.rect)
+                self.player_bullet_group.add(bullet)
+            self.player.shoot(pygame.K_RIGHT)
+        elif keys[pygame.K_LEFT]:
+            if self.player.can_shoot():
+                bullet = Bullet("left", self.level.size, self.player.rect)
+                self.player_bullet_group.add(bullet)
+            self.player.shoot(pygame.K_LEFT)
+
+        for guy in self.enemy_group:
+            if guy.is_shooting():
+                bullet = Bullet(guy.shoot_dir, self.level.size, guy.rect)
+                self.enemy_bullet_group.add(bullet)
+
+        # remove bullets that hit terrain
+        pygame.sprite.groupcollide(self.enemy_bullet_group, self.level, True, False)
+        pygame.sprite.groupcollide(self.player_bullet_group, self.level, True, False)
+
+        damaged_guys = pygame.sprite.groupcollide(self.enemy_group, self.player_bullet_group, False, True)
+        for d in damaged_guys:
+            d.damage(1)
+            if d.hp == 0:
+                d.kill()
+
+        guys = self.enemy_group.sprites() + self.player_group.sprites()
+
+        for guy in guys:
+            if guy.rect.top > self.level.bottom():
+                guy.kill()
+            else:
+                guy.collide_with(self.level.collisions_for(guy))
+
+        offset = (self.width / 2) - self.player.rect.x, (self.height / 1.5) - self.player.rect.y
+        self.bdrop2.update()
+        self.bdrop2.draw(self.screen, (offset[0]/4, offset[1]/4))
+        self.bdrop1.update()
+        self.bdrop1.draw(self.screen, (offset[0]/2, offset[1]/2))
+        self.player_bullet_group.update()
+        self.player_bullet_group.draw(self.screen, offset)
+        self.enemy_bullet_group.update()
+        self.enemy_bullet_group.draw(self.screen, offset)
+        self.enemy_group.update(self.player.rect)
+        self.enemy_group.draw(self.screen, offset)
+        self.player_group.update()
+        self.player_group.draw(self.screen, offset)
+        self.health_bar_sprites.update()
+        self.health_bar_sprites.draw(self.screen, offset)
+        self.level.update()
+        self.level.draw(self.screen, offset)
 
 if __name__ == "__main__":
     win = LD26Main()
