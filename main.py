@@ -7,14 +7,15 @@ from healthbar import HealthBar
 from badguy import BadGuy
 from player import Player
 from bullet import Bullet
-from ground import Ground
+from level import Level
 from dude import Dude
+from cameraspritegroup import CameraSpriteGroup
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
 class LD26Main:
-    def __init__(self, width=800,height=600):
+    def __init__(self, width=1800,height=1000):
         pygame.init()
         self.width = width
         self.height = height
@@ -22,15 +23,15 @@ class LD26Main:
 
     def load_sprites(self):
         self.player = Player((self.width, self.height))
-        self.player_group = pygame.sprite.RenderPlain((self.player))
-        self.player_bullet_group = pygame.sprite.RenderPlain()
+        self.player_group = CameraSpriteGroup((self.player))
+        self.player_bullet_group = CameraSpriteGroup()
 
-        self.enemy_group = pygame.sprite.RenderPlain()
-        self.enemy_bullet_group = pygame.sprite.RenderPlain()
-        self.health_bar_sprites = pygame.sprite.RenderPlain()
+        self.enemy_group = CameraSpriteGroup()
+        self.enemy_bullet_group = CameraSpriteGroup()
+        self.health_bar_sprites = CameraSpriteGroup()
         self.max_badguys = 2
 
-        self.ground = Ground((self.width, self.height))
+        self.level = Level((self.width, self.height))
 
     def go(self):
         self.load_sprites()
@@ -77,8 +78,8 @@ class LD26Main:
                     self.enemy_bullet_group.add(bullet)
 
             # remove bullets that hit terrain
-            pygame.sprite.groupcollide(self.enemy_bullet_group, self.ground, True, False)
-            pygame.sprite.groupcollide(self.player_bullet_group, self.ground, True, False)
+            pygame.sprite.groupcollide(self.enemy_bullet_group, self.level, True, False)
+            pygame.sprite.groupcollide(self.player_bullet_group, self.level, True, False)
 
             damaged_guys = pygame.sprite.groupcollide(self.enemy_group, self.player_bullet_group, False, True)
             for d in damaged_guys:
@@ -89,20 +90,21 @@ class LD26Main:
             guys = self.enemy_group.sprites() + self.player_group.sprites()
 
             for guy in guys:
-                guy.collide_with(self.ground.collisions_for(guy))
+                guy.collide_with(self.level.collisions_for(guy))
 
+            offset = (self.width / 2) - self.player.rect.x, (self.height / 1.5) - self.player.rect.y
             self.player_bullet_group.update()
-            self.player_bullet_group.draw(self.screen)
+            self.player_bullet_group.draw(self.screen, (offset[0], offset[1]))
             self.enemy_bullet_group.update()
-            self.enemy_bullet_group.draw(self.screen)
+            self.enemy_bullet_group.draw(self.screen, (offset[0], offset[1]))
             self.enemy_group.update(self.player.rect)
-            self.enemy_group.draw(self.screen)
+            self.enemy_group.draw(self.screen, (offset[0], offset[1]))
             self.player_group.update()
-            self.player_group.draw(self.screen)
+            self.player_group.draw(self.screen, (offset[0], offset[1]))
             self.health_bar_sprites.update()
-            self.health_bar_sprites.draw(self.screen)
-            self.ground.update()
-            self.ground.draw(self.screen)
+            self.health_bar_sprites.draw(self.screen, (offset[0], offset[1]))
+            self.level.update()
+            self.level.draw(self.screen, (offset[0], offset[1]))
             pygame.display.flip()
 
 if __name__ == "__main__":
