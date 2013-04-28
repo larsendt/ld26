@@ -103,7 +103,4 @@ class Dude(pygame.sprite.Sprite):
         if self.shoot_count >= self.shot_interval:
             self.shoot_dir = None
 
-        if self.rect.top > self.screen_dims[1]:
-            self.kill()
-
 

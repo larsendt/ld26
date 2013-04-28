@@ -90,7 +90,10 @@ class LD26Main:
             guys = self.enemy_group.sprites() + self.player_group.sprites()
 
             for guy in guys:
-                guy.collide_with(self.level.collisions_for(guy))
+                if guy.rect.top > self.level.bottom():
+                    guy.kill()
+                else:
+                    guy.collide_with(self.level.collisions_for(guy))
 
             offset = (self.width / 2) - self.player.rect.x, (self.height / 1.5) - self.player.rect.y
             self.player_bullet_group.update()

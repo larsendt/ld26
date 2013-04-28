@@ -13,16 +13,18 @@ class LevelTile(pygame.sprite.Sprite):
 class Level(CameraSpriteGroup):
     def __init__(self, screen_dims):
         pygame.sprite.RenderPlain.__init__(self)
-        pxarray = pygame.PixelArray(pygame.image.load("res/levels/level1.png"))
-        sz = 64
+        pixarray = pygame.PixelArray(pygame.image.load("res/levels/level1.png"))
+        self.tilesize = 64
+        self.dims = len(pixarray), len(pixarray[0])
 
-        for colnum, col in enumerate(pxarray):
+        for colnum, col in enumerate(pixarray):
             for rownum, pixel in enumerate(col):
                 if pixel == 0:
-                    lt = LevelTile((colnum * sz, rownum * sz))
+                    lt = LevelTile((colnum * self.tilesize, rownum * self.tilesize))
                     self.add(lt)
 
     def collisions_for(self, sprite):
         return map(lambda x: x.rect, pygame.sprite.spritecollide(sprite, self, False))
 
-
+    def bottom(self):
+        return self.dims[1] * self.tilesize
