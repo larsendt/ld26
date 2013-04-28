@@ -10,6 +10,7 @@ from bullet import Bullet
 from level import Level
 from dude import Dude
 from cameraspritegroup import CameraSpriteGroup
+from backdrop import Backdrop
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -32,6 +33,10 @@ class LD26Main:
         self.max_badguys = 2
 
         self.level = Level((self.width, self.height))
+        self.bdrop1 = Backdrop(self.level.dims, 1)
+        self.bdrop2 = Backdrop(self.level.dims, 2)
+        self.bdrop3 = Backdrop(self.level.dims, 1)
+        self.bdrop4 = Backdrop(self.level.dims, 2)
 
     def go(self):
         self.load_sprites()
@@ -96,18 +101,26 @@ class LD26Main:
                     guy.collide_with(self.level.collisions_for(guy))
 
             offset = (self.width / 2) - self.player.rect.x, (self.height / 1.5) - self.player.rect.y
+            self.bdrop4.update()
+            self.bdrop4.draw(self.screen, (offset[0]/16, offset[1]/16))
+            self.bdrop3.update()
+            self.bdrop3.draw(self.screen, (offset[0]/8, offset[1]/8))
+            self.bdrop2.update()
+            self.bdrop2.draw(self.screen, (offset[0]/4, offset[1]/4))
+            self.bdrop1.update()
+            self.bdrop1.draw(self.screen, (offset[0]/2, offset[1]/2))
             self.player_bullet_group.update()
-            self.player_bullet_group.draw(self.screen, (offset[0], offset[1]))
+            self.player_bullet_group.draw(self.screen, offset)
             self.enemy_bullet_group.update()
-            self.enemy_bullet_group.draw(self.screen, (offset[0], offset[1]))
+            self.enemy_bullet_group.draw(self.screen, offset)
             self.enemy_group.update(self.player.rect)
-            self.enemy_group.draw(self.screen, (offset[0], offset[1]))
+            self.enemy_group.draw(self.screen, offset)
             self.player_group.update()
-            self.player_group.draw(self.screen, (offset[0], offset[1]))
+            self.player_group.draw(self.screen, offset)
             self.health_bar_sprites.update()
-            self.health_bar_sprites.draw(self.screen, (offset[0], offset[1]))
+            self.health_bar_sprites.draw(self.screen, offset)
             self.level.update()
-            self.level.draw(self.screen, (offset[0], offset[1]))
+            self.level.draw(self.screen, offset)
             pygame.display.flip()
 
 if __name__ == "__main__":

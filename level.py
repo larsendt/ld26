@@ -6,7 +6,7 @@ from cameraspritegroup import CameraSpriteGroup
 class LevelTile(pygame.sprite.Sprite):
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_image("res/leveltile.png")
+        self.image, self.rect = load_image("res/tiles/leveltile.png", (0, 0, 0))
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
@@ -28,4 +28,4 @@ class Level(CameraSpriteGroup):
         return map(lambda x: x.rect, pygame.sprite.spritecollide(sprite, self, False))
 
     def bottom(self):
-        return self.dims[1] * self.tilesize
+        return self.dims[1] * self.tilesize + 500

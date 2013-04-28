@@ -9,7 +9,7 @@ class Dude(pygame.sprite.Sprite):
         self.left_shoot_image, _ = load_image("res/dude_shoot_left.png", -1)
         self.right_shoot_image, _ = load_image("res/dude_shoot_right.png", -1)
         self.image = self.default_image
-        self.max_v = 5
+        self.max_v = 8
         self.velocity = [0, 0]
         self.friction = 0.5
         self.gravity = 0.3
