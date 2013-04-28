@@ -17,9 +17,8 @@ class Dude(pygame.sprite.Sprite):
         self.shoot_dir = None
         self.shot_interval = 8
         self.shoot_count = 0
-        self.screen_dims = screen_dims
         self.grounded = False
-        self.ground_height = self.screen_dims[1]
+        self.screen_dims = screen_dims
 
     def can_shoot(self):
         return self.shoot_count == 0 or self.shoot_count >= self.shot_interval
@@ -89,7 +88,6 @@ class Dude(pygame.sprite.Sprite):
         else:
             self.velocity[1] = max(0, self.velocity[1])
             self.rect.move_ip(self.velocity[0], self.velocity[1])
-            self.rect.bottom = min(self.ground_height, self.rect.bottom)
 
         if self.shoot_dir == "left":
             self.image = self.left_shoot_image

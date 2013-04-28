@@ -16,6 +16,7 @@ class Level(CameraSpriteGroup):
         pixarray = pygame.PixelArray(pygame.image.load("res/levels/level1.png"))
         self.tilesize = 64
         self.dims = len(pixarray), len(pixarray[0])
+        self.size = self.tilesize * self.dims[0], self.tilesize * self.dims[1]
 
         for colnum, col in enumerate(pixarray):
             for rownum, pixel in enumerate(col):

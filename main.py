@@ -15,7 +15,7 @@ if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
 class LD26Main:
-    def __init__(self, width=1800,height=1000):
+    def __init__(self, width=800,height=600):
         pygame.init()
         self.width = width
         self.height = height
@@ -63,18 +63,18 @@ class LD26Main:
 
             if keys[pygame.K_RIGHT]:
                 if self.player.can_shoot():
-                    bullet = Bullet("right", (self.width, self.height), self.player.rect)
+                    bullet = Bullet("right", self.level.size, self.player.rect)
                     self.player_bullet_group.add(bullet)
                 self.player.shoot(pygame.K_RIGHT)
             elif keys[pygame.K_LEFT]:
                 if self.player.can_shoot():
-                    bullet = Bullet("left", (self.width, self.height), self.player.rect)
+                    bullet = Bullet("left", self.level.size, self.player.rect)
                     self.player_bullet_group.add(bullet)
                 self.player.shoot(pygame.K_LEFT)
 
             for guy in self.enemy_group:
                 if guy.is_shooting():
-                    bullet = Bullet(guy.shoot_dir, (self.width, self.height), guy.rect)
+                    bullet = Bullet(guy.shoot_dir, self.level.size, guy.rect)
                     self.enemy_bullet_group.add(bullet)
 
             # remove bullets that hit terrain
