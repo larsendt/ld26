@@ -19,7 +19,7 @@ class BadGuy(Dude):
         self.health_bar.rect.bottom = self.rect.y
         self.hp = hp
         self.ai = EnemyAI(self.rect)
-        self.shot_interval = 50 + random.randint(0, 20)
+        self.shot_interval = 80 + random.randint(0, 20)
         self.jump_power = -5 - random.randint(0, 5)
 
     def damage(self, amt):

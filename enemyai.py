@@ -7,8 +7,8 @@ class EnemyAI:
         self.target_rect = pygame.Rect(0, 0, 0, 0)
         self.rect = rect
         self.jumping = False
-        self.close_dist = 50 + random.randint(0, 50)
-        self.far_dist = 50 + random.randint(0, 200)
+        self.close_dist = 100 + random.randint(0, 50)
+        self.far_dist = 100 + random.randint(0, 200)
 
     def update(self, target_rect, rect, jumping):
         self.target_rect = target_rect

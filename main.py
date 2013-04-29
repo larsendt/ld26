@@ -29,6 +29,12 @@ class LD26Main:
     def load_sprites(self):
         self.player_group = CameraSpriteGroup()
         self.player_bullet_group = CameraSpriteGroup()
+        self.player_max_hp = 20
+        self.player_healthbar = HealthBar(self.player_max_hp, self.player_max_hp, "res/player_healthbar.png", (128, 16))
+        self.player_healthbar.rect.x = -55
+        self.player_healthbar.rect.y = 10
+        self.player_hb_group = CameraSpriteGroup()
+        self.player_hb_group.add(self.player_healthbar)
 
         self.enemy_group = CameraSpriteGroup()
         self.enemy_bullet_group = CameraSpriteGroup()
@@ -36,7 +42,7 @@ class LD26Main:
         self.max_badguys = 0
         self.guys_killed = 0
 
-        self.levels = [{"img":"res/levels/level1.png", "badguys":2, "goal":10}, {"img":"res/levels/level2.png", "badguys":5, "goal":10}]
+        self.levels = [{"img":"res/levels/level1.png", "badguys":2, "goal":6}, {"img":"res/levels/level2.png", "badguys":5, "goal":10}]
         self.cur_level = 0
 
         self.load_level(0)
@@ -57,6 +63,7 @@ class LD26Main:
             self.max_badguys = leveldict["badguys"]
             self.guys_killed = 0
             self.kill_goal = leveldict["goal"]
+            self.player_healthbar.set_hp(self.player_max_hp)
 
     def go(self):
         self.load_sprites()
@@ -108,14 +115,15 @@ class LD26Main:
     def do_main_game(self):
         if self.guys_killed > self.kill_goal:
             self.cur_level += 1
+            self.player.kill()
             self.load_level(self.cur_level)
 
         offset = (self.width / 2) - self.player.rect.x, (self.height / 1.5) - self.player.rect.y
         while len(self.enemy_group) < self.max_badguys:
             xpos = random.randint(0, self.width-64) - offset[0]
             ypos = random.randint(0, self.height-64) - offset[1]
-            h = HealthBar(10, 10)
-            b = BadGuy((self.width, self.height), 10, h, (xpos, ypos))
+            h = HealthBar(4, 4, "res/healthbar.png", (32, 4))
+            b = BadGuy((self.width, self.height), 4, h, (xpos, ypos))
             self.health_bar_sprites.add(h)
             self.enemy_group.add(b)
 
@@ -156,6 +164,14 @@ class LD26Main:
                 self.guys_killed += 1
                 d.kill()
 
+        if pygame.sprite.groupcollide(self.player_group, self.enemy_bullet_group, False, True):
+            self.player_healthbar.set_hp(self.player_healthbar.cur_hp-1)
+            if self.player_healthbar.cur_hp <= 0:
+                self.state = "die"
+                self.player.kill()
+
+
+
         guys = self.enemy_group.sprites() + self.player_group.sprites()
 
         for guy in guys:
@@ -182,6 +198,8 @@ class LD26Main:
         self.health_bar_sprites.draw(self.screen, offset)
         self.level.update()
         self.level.draw(self.screen, offset)
+        self.player_hb_group.update()
+        self.player_hb_group.draw(self.screen)
 
 if __name__ == "__main__":
     win = LD26Main()
