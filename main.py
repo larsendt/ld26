@@ -13,6 +13,7 @@ from cameraspritegroup import CameraSpriteGroup
 from backdrop import Backdrop
 from menu import Menu
 from win import Win
+from die import Die
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -26,8 +27,7 @@ class LD26Main:
         self.state = "menu"
 
     def load_sprites(self):
-        self.player = Player((self.width, self.height))
-        self.player_group = CameraSpriteGroup((self.player))
+        self.player_group = CameraSpriteGroup()
         self.player_bullet_group = CameraSpriteGroup()
 
         self.enemy_group = CameraSpriteGroup()
@@ -42,14 +42,15 @@ class LD26Main:
         self.load_level(0)
         self.menu = Menu()
         self.win = Win()
+        self.die = Die()
 
     def load_level(self, levelnum):
         if levelnum >= len(self.levels):
             self.state = "win"
         else:
             leveldict = self.levels[levelnum]
-            self.player.rect.x = 0
-            self.player.rect.y = 0
+            self.player = Player((self.width, self.height))
+            self.player_group.add(self.player)
             self.level = Level((self.width, self.height), leveldict["img"])
             self.bdrop1 = Backdrop(self.level.dims, 1)
             self.bdrop2 = Backdrop(self.level.dims, 2)
@@ -77,7 +78,7 @@ class LD26Main:
                     elif event.key == K_RETURN:
                         if self.state == "menu":
                             self.state = "game"
-                        elif self.state == "win":
+                        elif self.state == "win" or self.state == "die":
                             self.load_level(0)
                             self.state = "game"
 
@@ -85,10 +86,16 @@ class LD26Main:
                 self.do_menu()
             elif self.state == "game":
                 self.do_main_game()
-            else:
+            elif self.state == "win":
                 self.do_win()
+            else:
+                self.do_die()
 
             pygame.display.flip()
+
+    def do_die(self):
+        self.die.update()
+        self.die.draw(self.screen)
 
     def do_win(self):
         self.win.update()
@@ -154,6 +161,8 @@ class LD26Main:
         for guy in guys:
             if guy.rect.top > self.level.bottom():
                 guy.kill()
+                if isinstance(guy, Player):
+                    self.state = "die"
             else:
                 guy.collide_with(self.level.collisions_for(guy))
 
