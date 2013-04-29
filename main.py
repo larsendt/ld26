@@ -25,6 +25,7 @@ class LD26Main:
         self.height = height
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.state = "menu"
+        pygame.display.set_caption("Shoot Guys")
 
     def load_sprites(self):
         self.player_group = CameraSpriteGroup()
