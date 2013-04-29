@@ -11,9 +11,9 @@ class LevelTile(pygame.sprite.Sprite):
         self.rect.y = pos[1]
 
 class Level(CameraSpriteGroup):
-    def __init__(self, screen_dims):
+    def __init__(self, screen_dims, levelimg):
         pygame.sprite.RenderPlain.__init__(self)
-        pixarray = pygame.PixelArray(pygame.image.load("res/levels/level1.png"))
+        pixarray = pygame.PixelArray(pygame.image.load(levelimg))
         self.tilesize = 64
         self.dims = len(pixarray), len(pixarray[0])
         self.size = self.tilesize * self.dims[0], self.tilesize * self.dims[1]
